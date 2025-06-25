@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DineshGPT</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">   
+            <h1>DineshGPT</h1>
+        </div>
+        <section>
+            <div class="content">
+                <div class="message bot-message">
+                    <div class="message-content">
+                        <p>Hello! How can I help you today?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" placeholder="Type your message here..." class="chat-input" autocomplete="off" />
+                <button class="send-button">Send</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputField = document.querySelector('.chat-input');
+            const sendButton = document.querySelector('.send-button');
+            const content = document.querySelector('.content');
+
+            const setLoading = (isLoading) => {
+                sendButton.disabled = isLoading;
+                inputField.disabled = isLoading;
+                sendButton.textContent = isLoading ? 'Sending...' : 'Send';
+            };
+
+            const sendMessage = async () => {
+                const messageContent = inputField.value.trim();
+                
+                if (messageContent) {
+                    try {
+                        // Create and append user message
+                        const messageElement = document.createElement('div');
+                        messageElement.classList.add('message', 'user-message');
+                        messageElement.innerHTML = `<div class="message-content"><p>${messageContent}</p></div>`;
+                        content.appendChild(messageElement);
+                        
+                        // Clear input and scroll
+                        inputField.value = '';
+                        content.scrollTop = content.scrollHeight;
+
+                        // Set loading state
+                        setLoading(true);
+
+                        // Send message to server
+                        const response = await fetch('/gemini', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ prompt: messageContent })
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Failed to get response');
+                        }
+
+                        // Create bot response
+                        const botMessage = data.response || "I'm not sure how to respond to that.";
+                        const botResponse = document.createElement('div');
+                        botResponse.classList.add('message', 'bot-message');
+                        botResponse.innerHTML = `<div class="message-content"><p>${botMessage}</p></div>`;
+                        content.appendChild(botResponse);
+                        
+                    } catch (error) {
+                        // Show error message
+                        const errorMessage = document.createElement('div');
+                        errorMessage.classList.add('message', 'bot-message', 'error');
+                        errorMessage.innerHTML = `<div class="message-content"><p>Error: ${error.message}</p></div>`;
+                        content.appendChild(errorMessage);
+                    } finally {
+                        // Reset loading state and scroll
+                        setLoading(false);
+                        content.scrollTop = content.scrollHeight;
+                    }
+                }
+            };
+
+            // Add click event listener to send button
+            sendButton.addEventListener('click', sendMessage);
+
+            // Add enter key event listener to input field
+            inputField.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !inputField.disabled) {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
