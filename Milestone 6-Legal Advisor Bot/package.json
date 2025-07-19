@@ -1,0 +1,21 @@
+{
+  "name": "milestone-6-legal-advisor-bot",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@langchain/community": "^0.3.49",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "langchain": "^0.3.30",
+    "nodemon": "^3.1.10",
+    "pdf-parse": "^1.1.1"
+  }
+}
